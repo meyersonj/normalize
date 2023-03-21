@@ -3,6 +3,10 @@
 This is a small script created on the basis of an older `convert_all.py` and with help from ChatGPT.
 
 ## Current status
+* We have 2 files - convert_all_chatgpt.py and convert_test.py
+
+*  convert_test.py tests convert_all_chatgpt.py
+
 
 - [x] test_identify_file
 - [x] test_convert_to_mp4
@@ -39,7 +43,10 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+run the tests
 
-
+```bash
+python3 -m unittest convert_test.TestFileConversion
+```
 
 
