@@ -14,3 +14,12 @@ macos-reqs:
 	brew install ffmpeg
 	brew install inkscape
 	brew install ffmpeg
+
+.PHONY: build
+build:
+	docker build -t convert:local ./  
+
+
+.PHONY: docker-test
+docker-test:
+	docker run -it -v $(PWD):/app convert:local /bin/bash

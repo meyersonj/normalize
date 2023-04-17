@@ -26,7 +26,7 @@ you will need
 * inkscape
 * and probably some other stuff
 
-Ideally eventually we version freeze all these os-level reqs. into a docker image, the current set is slow and generally non-repeatable.
+Ideally eventually we version freeze all these os-level reqs. into a docker image, the current setup is slow and generally non-repeatable as we move across OSs/users.
 
 on a Mac you can try a _make_ target to install some of these - no promises
 ```
@@ -55,4 +55,8 @@ run the tests
 python3 -m unittest convert_test.TestFileConversion
 ```
 
+## with docker
+%docker run -it -v $(PWD):/app convert:local  /bin/bash
 
+
+docker run -it  /bin/bash
