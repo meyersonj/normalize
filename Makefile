@@ -17,7 +17,7 @@ macos-reqs:
 
 .PHONY: build
 build:
-	docker build -t convert:local ./  
+	docker build -t convert:local ./
 
 
 .PHONY: docker-test

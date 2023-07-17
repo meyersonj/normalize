@@ -8,6 +8,8 @@ import sys
 import mimetypes
 import shlex
 import csv
+from shutil import copyfile
+
 
 droid_cmd = 'java -jar droid-command-line-6.6.1.jar'
 droid_sign_file = "DROID_SignatureFile_V111.xml"
@@ -40,7 +42,6 @@ def build_droid_profile(dirpath):
     cleanup_cmd = f"rm {md5_sum}.droid_output {md5_sum}.droid"
     args = shlex.split(cleanup_cmd)
     subprocess.call(args)
-
 
     #profile_dict = io.StringIO(output)
     csv_reader = csv.DictReader(output.splitlines())
@@ -122,12 +123,14 @@ def convert_to_svg(filepath):
         return
     return svg_path
 
+def no_convert(filepath):
+    return filepath
 
 def convert_file(filepath,metadata):
     """
     Converts a file to a different format based on its MIME type.
     """
-    mime_type = metadata.get('MIME_Type', '').lower()
+    mime_type = metadata.get('MIME_TYPE', '').lower()
 
     if 'audio' in mime_type:
         sound = AudioSegment.from_file(filepath)
@@ -140,47 +143,50 @@ def convert_file(filepath,metadata):
 
     elif 'image/svg' in mime_type:
         return filepath
+    
+    elif 'postscript' in mime_type:
+        return convert_to_svg(filepath)
+
+    elif 'text/xml' in mime_type:
+        return convert_to_doc(filepath)
 
     elif 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in mime_type:
         return convert_to_doc(filepath)
+    
+    elif mime_type == 'text/plain':
+        return filepath # no convertion
 
     else:
         print(f'Unsupported file type: {mime_type}', file=sys.stderr)
 
 
-def normalization_map():
+def batch_convert(droid_profile, target_dir):
+    mime_conversion_map = {
+        'audio/mpeg': convert_to_mp3,
+        'video/x-msvideo': convert_to_mp4,
+        'application/postscript': convert_to_svg,
+        'application/vnd.oasis.opendocument.text': convert_to_doc,
+        'application/xml': convert_to_doc,
+        'text/xml': convert_to_doc,
+        'text/plain': no_convert,
+        'image/svg+xml': no_convert,
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': no_convert,
+        'video/mp4': no_convert,
+        'application/xml, text/xml': convert_to_doc,
+        'application/vnd.oasis.opendocument.text': convert_to_doc,
+    }
 
-    
-
-    {
-    ".aac": "audio/aac",
-    ".ac3": "audio/ac3",
-    ".avi": "video/x-msvideo",
-    ".csv": "text/csv",
-    ".epub": "application/epub+zip",
-    ".flac": "audio/flac",
-    ".gif": "image/gif",
-    ".html": "text/html",
-    ".ico": "image/x-icon",
-    ".jpeg": "image/jpeg",
-    ".jpg": "image/jpeg",
-    ".m4a": "audio/mp4",
-    ".mp3": "audio/mpeg",
-    ".mp4": "video/mp4",
-    ".odt": "application/vnd.oasis.opendocument.text",
-    ".oga": "audio/ogg",
-    ".ogv": "video/ogg",
-    ".pdf": "application/pdf",
-    ".png": "image/png",
-    ".ppt": "application/vnd.ms-powerpoint",
-    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    ".rtf": "application/rtf",
-    ".svg": "image/svg+xml",
-    ".txt": "text/plain",
-    ".webm": "video/webm",
-    ".wav": "audio/wav",
-    ".xls": "application/vnd.ms-excel",
-    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ".xml": "application/xml"
-}
-
+    for item in droid_profile:
+        # Check if it's a file
+        if item['TYPE'] == 'File':
+            mime_type = item['MIME_TYPE']
+            file_path = item['FILE_PATH']
+            conversion_function = mime_conversion_map.get(mime_type)
+            if conversion_function:
+                target_file_path = os.path.join(target_dir, os.path.basename(file_path))
+                print(target_file_path)
+                # If the conversion function is not `no_convert`, we perform conversion
+                if conversion_function is not no_convert:
+                    conversion_function(file_path, target_file_path)
+                else:  # If it's `no_convert`, we simply copy the file
+                    copyfile(file_path, target_file_path)

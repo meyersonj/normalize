@@ -1,4 +1,5 @@
-import unittest
+#import unittest
+import pytest
 import os
 import tempfile
 import shutil
@@ -48,6 +49,7 @@ class TestFileConversion(unittest.TestCase):
             f.write('showpage\n')
 
         print(self.temp_dir)
+
     def tearDown(self):
         # Remove temporary directory and file
         shutil.rmtree(self.temp_dir)
@@ -65,7 +67,7 @@ class TestFileConversion(unittest.TestCase):
             {'FILE_PATH': self.video_file, 'MIME_TYPE':'video/x-msvideo', 'PUID':'fmt/5'},
             {'FILE_PATH': self.odt_file, 'MIME_TYPE':'application/xml, text/xml','PUID':'fmt/101'},
         ]
-
+        self.droid_profile = droid_profile
         # Iterate through each dictionary in `expected_results` and compare it with the corresponding dictionary in `profile`
         for expected_dict in expected_results:
             # Check if there exists a dictionary in `profile` that has the same `FILE_PATH` value as the current expected dictionary
@@ -108,6 +110,18 @@ class TestFileConversion(unittest.TestCase):
 
     def test_convert_file(self):
         # Test converting a file to a different format based on its MIME typed
+
+        droid_profile = build_droid_profile(self.temp_dir)
+
+        normalization_mapping = {
+            'image/jpeg': 'normalize_jpeg.py',
+            'audio/wav': 'normalize_wav.py',
+            'video/mp4': 'normalize_mp4.py'
+        }
+
+        #for elem in droid_profile:
+            # 
+
         audio_file = self.wav_file
         mp3_path = convert_file(audio_file)
         self.assertTrue(os.path.exists(mp3_path))
@@ -133,6 +147,3 @@ class TestFileConversion(unittest.TestCase):
         unknown_file = self.temp_file
         with self.assertRaises(Exception):
             convert_file(unknown_file)
-
-if __name__ == '__main__':
-    unittest.main()
