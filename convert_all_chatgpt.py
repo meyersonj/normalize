@@ -88,6 +88,9 @@ def construct_output_path(filepath, suffix, output_dir=None):
     
     return output_path
 
+def replace_suffix(filename, new_suffix):
+    base_name = os.path.splitext(os.path.basename(filename))[0]
+    return base_name + new_suffix
 
 def convert_to_mp4(filepath, output_dir=None):
     """
@@ -122,14 +125,13 @@ def convert_to_doc(filepath, output_dir=None):
     Converts a document file to DOC format using LibreOffice.
     """
     doc_path = construct_output_path(filepath, '.doc', output_dir)
-    cmd = [libreoffice_cmd, '--headless', '--convert-to', 'doc', filepath, '--outdir', os.path.dirname(filepath)]
+    cmd = [libreoffice_cmd, '--headless', '--convert-to', 'doc', filepath, '--outdir', os.path.dirname(doc_path)]
     try:
         subprocess.check_call(cmd, shell=False)
     except subprocess.CalledProcessError as e:
         print(f'Error converting {filepath} to DOC: {e}', file=sys.stderr)
         return
     return doc_path
-
 
 def convert_to_svg(filepath, output_dir=None):
     """
@@ -199,6 +201,7 @@ def convert_file(filepath,metadata):
 def batch_convert(droid_profile, target_dir):
     mime_conversion_map = {
         'audio/mpeg': convert_to_mp3,
+        'audio/x-wav': convert_to_mp3,
         'video/x-msvideo': convert_to_mp4,
         'application/postscript': convert_to_svg,
         'application/vnd.oasis.opendocument.text': convert_to_doc,
@@ -214,15 +217,29 @@ def batch_convert(droid_profile, target_dir):
 
     for item in droid_profile:
         # Check if it's a file
+        #breakpoint()
         if item['TYPE'] == 'File':
             mime_type = item['MIME_TYPE']
             file_path = item['FILE_PATH']
+
             conversion_function = mime_conversion_map.get(mime_type)
             if conversion_function:
                 target_file_path = os.path.join(target_dir, os.path.basename(file_path))
                 print(target_file_path)
                 # If the conversion function is not `no_convert`, we perform conversion
                 if conversion_function is not no_convert:
-                    conversion_function(file_path, target_file_path)
+                    conversion_function(file_path, output_dir=target_dir)
                 else:  # If it's `no_convert`, we simply copy the file
                     copyfile(file_path, target_file_path)
+
+
+def main():
+    dirpath = '/path/to/files'
+    output_dir = '/path/to/output/directory'
+    
+    droid_profile = build_droid_profile(dirpath)
+    
+    batch_convert(droid_profile, output_dir)
+
+if __name__ == "__main__":
+    main()

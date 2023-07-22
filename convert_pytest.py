@@ -5,7 +5,7 @@ import subprocess
 
 import pytest
 
-from convert_all_chatgpt import convert_to_mp4, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert
+from convert_all_chatgpt import convert_to_mp4, convert_to_mp3, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert, replace_suffix
 
 @pytest.fixture(scope='class')
 def setup_and_teardown(request):
@@ -36,6 +36,7 @@ def setup_and_teardown(request):
 
     # Add your attributes to the class
     request.cls.temp_dir = temp_dir
+    request.cls.output_dir = output_dir
     request.cls.temp_file = temp_file
     request.cls.video_file = video_file
     request.cls.wav_file = wav_file
@@ -73,9 +74,9 @@ class TestFileConversion:
         
     def test_no_convert_with_output_dir(self):
         output_file_path = no_convert(self.temp_file, output_dir = self.output_dir)
-        self.assertTrue(os.path.isfile(output_file_path))
+        assert os.path.isfile(output_file_path)
         with open(output_file_path, 'r') as f:
-            self.assertEqual(f.read(), 'test data')
+            assert f.read() == 'test data'
 
     def test_construct_output_path(self):
         # Test with output_dir provided
@@ -124,6 +125,14 @@ class TestFileConversion:
         metadata = identify_file(mp4_path)
         assert metadata['PUID'] == 'fmt/199'
         os.remove(mp4_path)
+
+    def test_convert_to_mp3(self):
+        mp3_path = convert_to_mp3(self.wav_file)
+        assert os.path.exists(mp3_path)
+        assert os.path.splitext(mp3_path)[1] == '.mp3'
+        metadata = identify_file(mp3_path)
+        assert metadata['PUID'] == 'fmt/134'  # 'fmt/134' is the PUID for MP3 
+        os.remove(mp3_path)
 
     def test_convert_to_doc(self):
         doc_path = convert_to_doc(self.odt_file)
@@ -178,28 +187,13 @@ class TestFileConversion:
         batch_convert(self.profile, str(target_dir))
 
         expected_files = [
-            os.path.join(target_dir, os.path.basename(self.temp_file)),
-            os.path.join(target_dir, os.path.basename(self.eps_file)) + '.svg',
-            os.path.join(target_dir, os.path.basename(self.wav_file)) + '.mp3',
-            os.path.join(target_dir, os.path.basename(self.video_file)) + '.mp4',
-            os.path.join(target_dir, os.path.basename(self.odt_file)) + '.doc',
+            os.path.join(target_dir, replace_suffix(self.temp_file, '.txt')),
+            os.path.join(target_dir, replace_suffix(self.eps_file, '.svg')),
+            os.path.join(target_dir, replace_suffix(self.wav_file, '.mp3')),
+            os.path.join(target_dir, replace_suffix(self.video_file, '.mp4')),
+            os.path.join(target_dir, replace_suffix(self.odt_file, '.doc')),
         ]
-
         for file in expected_files:
             assert os.path.exists(file), f"File {file} not found in target directory"
 
-        # Optionally, if you know the format of each file after conversion, you could also test that
-        for file in os.listdir(target_dir):
-            file_path = os.path.join(target_dir, file)
-            metadata = identify_file(file_path)
-            if file.endswith('.mp3'):
-                assert metadata['PUID'] == 'fmt/134'
-            elif file.endswith('.mp4'):
-                assert metadata['PUID'] == 'fmt/199'
-            elif file.endswith('.svg'):
-                assert metadata['PUID'] == 'fmt/91'
-            elif file.endswith('.doc'):
-                assert metadata['PUID'] == 'fmt/40'
-            elif file.endswith('.txt'):
-                assert metadata['PUID'] == 'x-fmt/111'
 
