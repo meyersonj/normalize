@@ -8,7 +8,7 @@ import sys
 import mimetypes
 import shlex
 import csv
-from shutil import copyfile
+from shutil import copyfile, copy
 
 
 droid_cmd = 'java -jar droid-command-line-6.6.1.jar'
@@ -67,12 +67,34 @@ def identify_file(filepath):
 
     return metadata
 
+def construct_output_path(filepath, suffix, output_dir=None):
+    """
+    Constructs the path for the output file.
 
-def convert_to_mp4(filepath):
+    Parameters:
+    filepath (str): The input file path.
+    suffix (str): The suffix for the output file (including the dot, like '.mp4', '.doc', etc.)
+    output_dir (str, optional): The directory to place the output file. If not provided, 
+                                the directory of the input file is used. 
+
+    Returns:
+    str: The constructed output file path.
+    """
+    basename = os.path.splitext(os.path.basename(filepath))[0] + suffix
+    if output_dir:
+        output_path = os.path.join(output_dir, basename)
+    else:
+        output_path = os.path.join(os.path.dirname(filepath), basename)
+    
+    return output_path
+
+
+def convert_to_mp4(filepath, output_dir=None):
     """
     Converts a video file to MP4 format using FFmpeg.
     """
-    mp4_path = os.path.splitext(filepath)[0] + '.mp4'
+    #mp4_path = os.path.splitext(filepath)[0] + '.mp4'
+    mp4_path = construct_output_path(filepath, '.mp4', output_dir)
     cmd = f'ffmpeg -i "{filepath}" "{mp4_path}"'
     try:
         subprocess.check_call(cmd, shell=True)
@@ -81,11 +103,12 @@ def convert_to_mp4(filepath):
         return
     return mp4_path
 
-def convert_to_mp3(filepath):
+def convert_to_mp3(filepath, output_dir=None):
     """
     Converts an audio file to MP3 format using FFmpeg.
     """
-    mp3_path = os.path.splitext(filepath)[0] + '.mp3'
+    mp3_path = construct_output_path(filepath, '.mp3', output_dir)
+
     cmd = f'ffmpeg -i "{filepath}" -vn -ar 44100 -ac 2 -ab 192k -f mp3 "{mp3_path}"'
     try:
         subprocess.check_call(cmd, shell=True)
@@ -94,11 +117,11 @@ def convert_to_mp3(filepath):
         return
     return mp3_path
 
-def convert_to_doc(filepath):
+def convert_to_doc(filepath, output_dir=None):
     """
     Converts a document file to DOC format using LibreOffice.
     """
-    doc_path = os.path.splitext(filepath)[0] + '.doc'
+    doc_path = construct_output_path(filepath, '.doc', output_dir)
     cmd = [libreoffice_cmd, '--headless', '--convert-to', 'doc', filepath, '--outdir', os.path.dirname(filepath)]
     try:
         subprocess.check_call(cmd, shell=False)
@@ -108,11 +131,11 @@ def convert_to_doc(filepath):
     return doc_path
 
 
-def convert_to_svg(filepath):
+def convert_to_svg(filepath, output_dir=None):
     """
     Converts a vector image file to SVG format using Inkscape.
     """
-    svg_path = os.path.splitext(filepath)[0] + '.svg'
+    svg_path = construct_output_path(filepath, '.svg', output_dir)
     cmd = f'inkscape  --export-filename="{svg_path}" "{filepath}" 2>/dev/null'
 
     try:
@@ -123,8 +146,21 @@ def convert_to_svg(filepath):
         return
     return svg_path
 
-def no_convert(filepath):
-    return filepath
+def no_convert(filepath, output_dir=None):
+    """
+    Returns the same filepath if no output_dir is provided.
+    If output_dir is provided, the file is copied to output_dir and the new filepath is returned.
+    """
+    if output_dir:
+        # Use the construct_output_path function to generate the destination filepath
+        destination_filepath = construct_output_path(filepath, '', output_dir)
+        
+        # Copy the file
+        copy(filepath, destination_filepath)
+        
+        return destination_filepath
+    else:
+        return filepath
 
 def convert_file(filepath,metadata):
     """

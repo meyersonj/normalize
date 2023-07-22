@@ -5,11 +5,12 @@ import subprocess
 
 import pytest
 
-from convert_all_chatgpt import convert_to_mp4, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file
+from convert_all_chatgpt import convert_to_mp4, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert
 
 @pytest.fixture(scope='class')
 def setup_and_teardown(request):
     temp_dir = tempfile.mkdtemp()
+    output_dir = tempfile.mkdtemp()
     temp_file = os.path.join(temp_dir, 'testfile.txt')
     with open(temp_file, 'w') as f:
         f.write('test data')
@@ -69,6 +70,52 @@ class TestFileConversion:
                     continue  
                 assert key in matching_dict, f"Key '{key}' not found in dictionary with FILE_PATH {matching_dict['FILE_PATH']}"
                 assert matching_dict[key] == value, f"Value for key '{key}' does not match expected value for FILE_PATH {matching_dict['FILE_PATH']}"
+        
+    def test_no_convert_with_output_dir(self):
+        output_file_path = no_convert(self.temp_file, output_dir = self.output_dir)
+        self.assertTrue(os.path.isfile(output_file_path))
+        with open(output_file_path, 'r') as f:
+            self.assertEqual(f.read(), 'test data')
+
+    def test_construct_output_path(self):
+        # Test with output_dir provided
+        filepath = '/path/to/input/file.txt'
+        suffix = '.mp4'
+        output_dir = '/path/to/output'
+        expected_output_path = '/path/to/output/file.mp4'
+        assert construct_output_path(filepath, suffix, output_dir) == expected_output_path
+
+        # Test without output_dir provided
+        filepath = '/path/to/input/file.txt'
+        suffix = '.doc'
+        expected_output_path = '/path/to/input/file.doc'
+        assert construct_output_path(filepath, suffix) == expected_output_path
+
+        # Test with empty string as suffix
+        filepath = '/path/to/input/file.txt'
+        suffix = ''
+        expected_output_path = '/path/to/input/file'
+        assert construct_output_path(filepath, suffix) == expected_output_path
+
+        # Test with dot in basename of filepath
+        filepath = '/path/to/input/file.v1.txt'
+        suffix = '.doc'
+        expected_output_path = '/path/to/input/file.v1.doc'
+        assert construct_output_path(filepath, suffix) == expected_output_path
+
+        # Test with relative paths
+        filepath = 'input/file.txt'
+        suffix = '.mp4'
+        output_dir = 'output'
+        expected_output_path = 'output/file.mp4'
+        assert construct_output_path(filepath, suffix, output_dir) == expected_output_path
+
+        # Test with dot in output_dir path
+        filepath = '/path/to/input/file.txt'
+        suffix = '.mp4'
+        output_dir = '/path/to/output./files'
+        expected_output_path = '/path/to/output./files/file.mp4'
+        assert construct_output_path(filepath, suffix, output_dir) == expected_output_path
 
     def test_convert_to_mp4(self):
         mp4_path = convert_to_mp4(self.video_file)
@@ -124,5 +171,35 @@ class TestFileConversion:
         metadata = [x for x in self.profile if x['FILE_PATH']==self.temp_file][0]
         plain_text = convert_file(unknown_file, metadata)
         assert os.path.exists(plain_text)
+    
+    def test_batch_convert(self, tmp_path):
+        target_dir = tmp_path / "target"
+        target_dir.mkdir()
+        batch_convert(self.profile, str(target_dir))
 
+        expected_files = [
+            os.path.join(target_dir, os.path.basename(self.temp_file)),
+            os.path.join(target_dir, os.path.basename(self.eps_file)) + '.svg',
+            os.path.join(target_dir, os.path.basename(self.wav_file)) + '.mp3',
+            os.path.join(target_dir, os.path.basename(self.video_file)) + '.mp4',
+            os.path.join(target_dir, os.path.basename(self.odt_file)) + '.doc',
+        ]
+
+        for file in expected_files:
+            assert os.path.exists(file), f"File {file} not found in target directory"
+
+        # Optionally, if you know the format of each file after conversion, you could also test that
+        for file in os.listdir(target_dir):
+            file_path = os.path.join(target_dir, file)
+            metadata = identify_file(file_path)
+            if file.endswith('.mp3'):
+                assert metadata['PUID'] == 'fmt/134'
+            elif file.endswith('.mp4'):
+                assert metadata['PUID'] == 'fmt/199'
+            elif file.endswith('.svg'):
+                assert metadata['PUID'] == 'fmt/91'
+            elif file.endswith('.doc'):
+                assert metadata['PUID'] == 'fmt/40'
+            elif file.endswith('.txt'):
+                assert metadata['PUID'] == 'x-fmt/111'
 
