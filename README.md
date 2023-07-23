@@ -6,6 +6,8 @@ This project is a Python-based file normalization tool that uses DROID, FFmpeg, 
 
 The Python script takes two arguments: a working directory and a target directory. It scans the working directory for files, identifies their MIME type using DROID, and then creates a normalized derivative in a different format if necessary. The original files are left untouched, and the normalized derivatives are moved to the target directory.
 
+In many ways this script accomplishes a small portion of what Archivematica Ingest microservice performs w/ the [Normalize process](https://www.archivematica.org/en/docs/archivematica-1.14/user-manual/ingest/ingest/#normalize).  This particular implementation was created for use by groups and institutions to have a standalone, low commitment option to create normalized derivatives of digital assets.  The author strongly recommends examining Archivematica documentation and their extensive examples to decide what fits your needs the best.
+
 ## Current test coverage
 
 - [x] test_identify_file
