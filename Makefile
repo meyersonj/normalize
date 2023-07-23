@@ -1,7 +1,3 @@
-
-.PHONY: test
-test: python3 -m unittest convert_test.TestFileConversion
-
 .PHONY: get-droid
 get-droid:
 	wget https://cdn.nationalarchives.gov.uk/documents/droid-binary-6.5.2-bin.zip
@@ -19,7 +15,11 @@ macos-reqs:
 build:
 	docker build -t convert:local ./
 
-
-.PHONY: docker-test
-docker-test:
+.PHONY: docker-shell
+docker-shell:
 	docker run -it -v $(PWD):/app convert:local /bin/bash
+
+.PHONE: docker-test
+docker-test:
+	docker run -it -v $(PWD):/app convert:local pytest -s convert_pytest.py::TestFileConversion
+

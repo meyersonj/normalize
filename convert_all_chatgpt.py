@@ -8,7 +8,9 @@ import sys
 import mimetypes
 import shlex
 import csv
+import argparse
 from shutil import copyfile, copy
+import pprint
 
 
 droid_cmd = 'java -jar droid-command-line-6.6.1.jar'
@@ -56,7 +58,6 @@ def identify_file(filepath):
 
     output = subprocess.check_output(" ".join([droid_cmd, '-Nr', filepath, '-Ns', droid_sign_file]), universal_newlines=True ,shell=True)
 
-    #file_path, puid = output.strip().split(',')
     lines = output.strip().split('\n')
     keys = lines[0].split(',')
     values = lines[1].split(',')
@@ -133,6 +134,19 @@ def convert_to_doc(filepath, output_dir=None):
         return
     return doc_path
 
+def convert_to_pdf(filepath, output_dir=None):
+    """
+    Converts a document file to PDF format using LibreOffice.
+    """
+    pdf_path = construct_output_path(filepath, '.pdf', output_dir)
+    cmd = [libreoffice_cmd, '--headless', '--convert-to', 'pdf', filepath, '--outdir', os.path.dirname(pdf_path)]
+    try:
+        subprocess.check_call(cmd, shell=False)
+    except subprocess.CalledProcessError as e:
+        print(f'Error converting {filepath} to PDF: {e}', file=sys.stderr)
+        return
+    return pdf_path
+
 def convert_to_svg(filepath, output_dir=None):
     """
     Converts a vector image file to SVG format using Inkscape.
@@ -166,7 +180,8 @@ def no_convert(filepath, output_dir=None):
 
 def convert_file(filepath,metadata):
     """
-    Converts a file to a different format based on its MIME type.
+    Converts a file to a different format based on its MIME type.  
+    Use batch convert if able
     """
     mime_type = metadata.get('MIME_TYPE', '').lower()
 
@@ -197,7 +212,6 @@ def convert_file(filepath,metadata):
     else:
         print(f'Unsupported file type: {mime_type}', file=sys.stderr)
 
-
 def batch_convert(droid_profile, target_dir):
     mime_conversion_map = {
         'audio/mpeg': convert_to_mp3,
@@ -214,6 +228,7 @@ def batch_convert(droid_profile, target_dir):
         'application/xml, text/xml': convert_to_doc,
         'application/vnd.oasis.opendocument.text': convert_to_doc,
     }
+    status_dict = {'success':[], 'fail':[], 'unconverted': {}, 'f_count':0}
 
     for item in droid_profile:
         # Check if it's a file
@@ -221,25 +236,77 @@ def batch_convert(droid_profile, target_dir):
         if item['TYPE'] == 'File':
             mime_type = item['MIME_TYPE']
             file_path = item['FILE_PATH']
+            status_dict['f_count'] += 1
 
             conversion_function = mime_conversion_map.get(mime_type)
             if conversion_function:
                 target_file_path = os.path.join(target_dir, os.path.basename(file_path))
                 print(target_file_path)
-                # If the conversion function is not `no_convert`, we perform conversion
-                if conversion_function is not no_convert:
-                    conversion_function(file_path, output_dir=target_dir)
-                else:  # If it's `no_convert`, we simply copy the file
-                    copyfile(file_path, target_file_path)
+
+                try:
+                    # If the conversion function is not `no_convert`, we perform conversion
+                    if conversion_function is not no_convert:
+                        conversion_function(file_path, output_dir=target_dir)
+                        status_dict['success'].append(file_path)
+                    else:  # If it's `no_convert`, we simply copy the file
+                        copyfile(file_path, target_file_path)
+                        status_dict['success'].append(file_path)
+                except Exception as e:
+                    print(f'Error converting {file_path}: {e}', file=sys.stderr)
+                    status_dict['fail'].append(file_path)
+            else:
+                if mime_type in status_dict['unconverted']:
+                    status_dict['unconverted'][mime_type] += 1
+                else:
+                    status_dict['unconverted'].update({mime_type:1})
+
+        print(f"USER REPORT ON SCRIPT RESULTS: {len(status_dict['success'])} files normalized out of {status_dict['f_count']} total files in the directory, and {len(status_dict['fail'])} failed normalizations. For the failed normalizations, please review the error messages printed to screen from the software used for normalizing those files. For files that were not failed normalizations, but remain unnormalized, make sure there is a normalization pathway for that file type currently defined in this script.\n\nPlease see the list of unique file types represented among the unnormalized files below, determine your preferred normalized output for those file type, identify & install software to complete the normalization tasks on those file types, and add those normalization paths to this script. Save and rerun to see if the script was able to successfully normalize additional files.\n\nIf you aren't sure which free, open source software will open and normalize the remaining extensions, try asking ChatGPT, or review the normalization paths defined in the Archivematica documentation.")
+
+        pprint.pprint(status_dict['unconverted'])
 
 
-def main():
-    dirpath = '/path/to/files'
-    output_dir = '/path/to/output/directory'
+
+                # # If the conversion function is not `no_convert`, we perform conversion
+                # if conversion_function is not no_convert:
+                #     conversion_function(file_path, output_dir=target_dir)
+                # else:  # If it's `no_convert`, we simply copy the file
+                #     copyfile(file_path, target_file_path)
+
+def main(working_dir, target_dir):
+    """
+    Main function to build the DROID profile for a directory and perform batch conversion.
+    """
+
+    # Build the DROID profile for the working directory
+    droid_profile = build_droid_profile(working_dir)
     
-    droid_profile = build_droid_profile(dirpath)
-    
-    batch_convert(droid_profile, output_dir)
+    # Perform batch conversion on the files identified in the DROID profile
+    batch_convert(droid_profile, target_dir)
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__':
+    """
+    Normalize Report script that searches for files in a given working directory and normalized them, writing the output to a specified target directory. This script 
+    requires two positional arguments:
+    
+    - `working_dir`: The directory to search for files.
+    - `target_dir`: The directory to move or copy files to.
+    
+    Usage:
+    python normalize-report.py <working_dir> <target_dir>
+    
+    Example:
+    python normalize-report.py /path/to/input /path/to/output
+    Examine usage, note working-dir and target-dir are required args
+    python normalize-report.py --working-dir my_project/input --target_dir my_project/output
+    """
+
+    # Define the command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('working_dir', help='The working directory to search for files')
+    parser.add_argument('target_dir', help='The target directory to move or copy files to')
+    args = parser.parse_args()
+
+    # Call the main function with the parsed arguments
+    main(working_dir=args.working_dir, 
+         target_dir=args.target_dir)

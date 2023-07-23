@@ -5,7 +5,7 @@ import subprocess
 
 import pytest
 
-from convert_all_chatgpt import convert_to_mp4, convert_to_mp3, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert, replace_suffix
+from convert_all_chatgpt import convert_to_mp4, convert_to_mp3, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert, replace_suffix, convert_to_pdf
 
 @pytest.fixture(scope='class')
 def setup_and_teardown(request):
@@ -139,6 +139,20 @@ class TestFileConversion:
         assert os.path.exists(doc_path)
         assert os.path.splitext(doc_path)[1] == '.doc'
         os.remove(doc_path)
+
+    def test_convert_to_pdf(self):
+        # Input an existing file path in place of "input_file.odt"
+        input_file = "input_file.odt" 
+        pdf_path = convert_to_pdf(self.odt_file)
+        
+        # Check if the output file exists
+        assert os.path.exists(pdf_path), "PDF file was not created."
+        
+        # Check if the output file has a .pdf extension
+        assert os.path.splitext(pdf_path)[1] == '.pdf', "Output file is not a PDF."
+        
+        # Remove the output file
+        os.remove(pdf_path)
 
     def test_convert_to_svg(self):
         svg_path = convert_to_svg(self.eps_file)

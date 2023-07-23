@@ -12,11 +12,18 @@ This is a small script created on the basis of an older `convert_all.py` and wit
 - [x] test_identify_file
 - [x] test_convert_to_mp4
 - [x] test_convert_to_doc
-- [ ] test_convert_to_svg (Inkscape stalls? not sure why)
-- [ ] test_convert_file 
+- [x] test_convert_to_svg
+- [x] test_convert_file 
 - [ ] test w/ some real reference data
 
 ## (non-python) Requirements
+
+A long story best understood by reading the included Dockerfile
+
+```bash
+make build
+```
+but if you don't want to use docker read on. . .
 
 ### Install
 you will need
@@ -59,4 +66,4 @@ python3 -m unittest convert_test.TestFileConversion
 %docker run -it -v $(PWD):/app convert:local  /bin/bash
 
 
-docker run -it  /bin/bash
+docker run -it  convert:local /bin/bash
