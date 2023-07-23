@@ -23,3 +23,6 @@ docker-shell:
 docker-test:
 	docker run -it -v $(PWD):/app convert:local pytest -s convert_pytest.py::TestFileConversion
 
+.PHONY: run-normalization
+run-normalization:
+	docker run -v $(PWD):/app -v $(WORKING_DIR):/app/input -v $(TARGET_DIR):/app/output convert:local python normalize-report.py

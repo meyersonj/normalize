@@ -6,7 +6,7 @@ This project is a Python-based file normalization tool that uses DROID, FFmpeg, 
 
 The Python script takes two arguments: a working directory and a target directory. It scans the working directory for files, identifies their MIME type using DROID, and then converts them to a different format if necessary. The converted files are then moved to the target directory.
 
-## Current status
+## Current test coverage
 
 - [x] test_identify_file
 - [x] test_convert_to_mp4
@@ -15,62 +15,62 @@ The Python script takes two arguments: a working directory and a target director
 - [x] test_convert_file 
 - [ ] test w/ some real reference data
 
-
 ## Prerequisites
 
 - Docker
 - Make
 
-## How to Use
+## Usage
 
 1. Clone this repository to your local machine.
 
-2. Use the provided Makefile to simplify the build and run process. The Makefile includes targets for building the Docker image, running a shell in the Docker container, running tests in the Docker container, and running the normalization process.
+2. Build the Docker image:
 
-   - To build the Docker image:
+   ```bash
+   make build
+   ```
 
-     ```
-     make build
-     ```
+3. To normalize the files in a directory, use the `run-normalization-debug` target in the Makefile. You need to provide the paths to your working directory and target directory as environment variables `WORKING_DIR` and `TARGET_DIR`:
 
-   - To run a shell in the Docker container:
+   ```bash
+   make run-normalization-debug WORKING_DIR=/path/to/your/working/dir TARGET_DIR=/path/to/your/target/dir
+   ```
 
-     ```
-     make docker-shell
-     ```
+   This command will run the Docker container, mount your working directory to `/app/input` and your target directory to `/app/output`, and then run the normalization script. The script will process the files in the working directory and write the output to the target directory.
 
-   - To run tests in the Docker container:
+The `run-normalization-debug`` target in the Makefile is named as such because it's designed to be used during the development and debugging process. It mounts your local directories to the Docker container, which allows you to see the changes in real-time and makes it easier to debug any issues.
 
-     ```
-     make docker-test
-     ```
-
-   - To run the normalization process, replacing `<working_dir>` and `<target_dir>` with the paths to your working and target directories:
-
-     ```
-     make run-normalization WORKING_DIR=<working_dir> TARGET_DIR=<target_dir>
-     ```
-
-   This command mounts your working and target directories to the `/app/input` and `/app/output` directories in the Docker container, and then runs the Python script with these directories as arguments.
+In a production environment, you would likely use a different setup. For example, you might have a separate Docker volume for the input and output directories, or you might use a cloud storage service to store your files. The Docker container could be run on a server or a cloud-based compute instance, and you might use a job scheduler or a queueing system to manage the normalization tasks.
 
 ## Dependencies
+
+The Docker container is configured to handle all dependencies required for the file conversion process. Here is a brief overview of the dependencies and their roles:
 
 - DROID: Used to identify the MIME type of files.
 - FFmpeg: Used to convert audio and video files to MP3 and MP4 format, respectively.
 - LibreOffice: Used to convert document files to DOC and PDF format.
 - Inkscape: Used to convert vector image files to SVG format.
 
-## Dockerfile
+These dependencies are automatically installed and configured when you build the Docker image, which is why we recommend using Docker to run the script. This ensures a consistent environment and reduces the risk of conflicts or other issues.
 
-The Dockerfile included in this repository sets up a Docker container with Python 3.12 and all the necessary dependencies for the script. It also downloads the DROID binary and signature file, which are used to identify the MIME type of files.
+## Troubleshooting and Advanced Usage
 
-## Makefile
+If you encounter issues while running the normalization process, you can use the `docker-shell` and `docker-test` targets in the Makefile to debug:
 
-The Makefile included in this repository provides a convenient way to perform common tasks such as building the Docker image, running a shell in the Docker container, running tests, and running the normalization process.
+- `make docker-shell`: This command runs a shell in the Docker container, allowing you to interactively run commands and inspect the state of the container.
 
-## Limitations
+- `make docker-test`: This command runs the tests in the Docker container. If the tests fail, the output should provide clues about what went wrong.
+
+## Limitations and Next Steps
 
 This tool currently supports the conversion of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to convert a different type of file, you may need to modify the script and Dockerfile to include the necessary conversion tools.
+
+While the current implementation is functional, there are several areas where it could be improved:
+
+- **Scaling**: The current implementation processes files in a single-threaded manner. If you need to process a large number of files or very large files, this could become a bottleneck. Consider parallelizing the file processing to take advantage of multiple cores or distributed systems.
+- **Deployment**: The current setup requires manual deployment. In a production environment, you might want to automate this process using a CI/CD pipeline. This would also make it easier to roll out updates to the script.
+- **Configuration**: The script currently requires the user to manually specify the working and target directories as command-line arguments. It might be more user-friendly to allow these settings to be configured via a configuration file or environment variables.
+- **Testing**: The script includes comprehensive unit tests, but it would be beneficial to add more types of tests, including integration tests and end-to-end tests. This would help to catch any bugs or regressions in the code.
 
 ## Contributing
 
