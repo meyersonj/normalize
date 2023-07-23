@@ -124,7 +124,7 @@ These improvements would require significant changes to the script, but they cou
 
 ### On Building DROID Profiles
 
-The `build_droid_profile` function is used to identify the MIME type and other metadata for all files in a specified directory. This function uses DROID, a software tool developed by (The National Archives of the United Kingdom)[https://www.nationalarchives.gov.uk/] to perform format identification.
+The `build_droid_profile` function is used to identify the MIME type and other metadata for all files in a specified directory. This function uses DROID, a software tool developed by [The National Archives of the United Kingdom](https://www.nationalarchives.gov.uk/) to perform format identification.
 
 The function works by creating a DROID profile for the directory, which is a process that involves scanning all files in the directory and identifying their MIME type and other metadata. This metadata is then extracted into a CSV file.
 
