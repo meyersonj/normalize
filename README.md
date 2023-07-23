@@ -38,7 +38,7 @@ The Python script takes two arguments: a working directory and a target director
 
    This command will run the Docker container, mount your working directory to `/app/input` and your target directory to `/app/output`, and then run the normalization script. The script will process the files in the working directory and write the output to the target directory.
 
-The `run-normalization-debug`` target in the Makefile is named as such because it's designed to be used during the development and debugging process. It mounts your local directories to the Docker container, which allows you to see the changes in real-time and makes it easier to debug any issues.
+The `run-normalization-debug` target in the Makefile is named as such because it's designed to be used during the development and debugging process. It mounts your local directories to the Docker container, which allows you to see the changes in real-time and makes it easier to debug any issues.
 
 In a production environment, you would likely use a different setup. For example, you might have a separate Docker volume for the input and output directories, or you might use a cloud storage service to store your files. The Docker container could be run on a server or a cloud-based compute instance, and you might use a job scheduler or a queueing system to manage the normalization tasks.
 
@@ -51,7 +51,7 @@ The Docker container is configured to handle all dependencies required for the f
 - LibreOffice: Used to convert document files to DOC and PDF format.
 - Inkscape: Used to convert vector image files to SVG format.
 
-These dependencies are automatically installed and configured when you build the Docker image, which is why we recommend using Docker to run the script. This ensures a consistent environment and reduces the risk of conflicts or other issues.
+These dependencies are **automatically installed** and configured when you build the Docker image, which is why we recommend using Docker to run the script. This ensures a consistent environment and reduces the risk of conflicts or other issues.
 
 ## Troubleshooting and Advanced Usage
 
@@ -63,8 +63,11 @@ If you encounter issues while running the normalization process, you can use the
 
 ## Limitations and Next Steps
 
-This tool currently supports the conversion of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to convert a different type of file, you may need to modify the script and Dockerfile to include the necessary conversion tools.
+This tool currently creates normalized derivaties of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to create normalized derivatives of a different/additional file types, you will need to modify the script and Dockerfile to include the necessary normalization pathways, this may require installing additional software. 
 
+### normalization pathways
+Currently the normalization pathways are defined in `normalize_all_.py::batch_convert` function as a static dictionary mapping MIME type to a normalization function.
+### More
 While the current implementation is functional, there are several areas where it could be improved:
 
 - **Scaling**: The current implementation processes files in a single-threaded manner. If you need to process a large number of files or very large files, this could become a bottleneck. Consider parallelizing the file processing to take advantage of multiple cores or distributed systems.
