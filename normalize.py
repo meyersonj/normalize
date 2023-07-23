@@ -215,7 +215,9 @@ def norm_file(filepath,metadata):
     else:
         print(f'Unsupported file type: {mime_type}', file=sys.stderr)
 
-def batch_norm(droid_profile, target_dir):
+
+
+def batch_norm(droid_profile, target_dir, working_dir='/app/input/'):
     mime_normalization_map = {
         'audio/mpeg': norm_to_mp3,
         'audio/x-wav': norm_to_mp3,
@@ -232,18 +234,27 @@ def batch_norm(droid_profile, target_dir):
     }
     status_dict = {'success':[], 'fail':[], 'unconverted': {}, 'f_count':0}
 
+    # Create all directories in the target directory, including empty ones
+    for dirpath, dirnames, filenames in os.walk(working_dir):
+        relative_dirpath = os.path.relpath(dirpath, working_dir)
+        print(relative_dirpath)
+        target_dirpath = os.path.join(target_dir, relative_dirpath)
+    
+        os.makedirs(target_dirpath, exist_ok=True)
+
     for item in droid_profile:
         # Check if it's a file
-        #breakpoint()
         if item['TYPE'] == 'File':
             mime_type = item['MIME_TYPE']
             file_path = item['FILE_PATH']
             status_dict['f_count'] += 1
 
-            conversion_function = mime_normalization_map .get(mime_type)
+            conversion_function = mime_normalization_map.get(mime_type, no_norm)
             if conversion_function:
-                target_file_path = os.path.join(target_dir, os.path.basename(file_path))
-                print(target_file_path)
+                # Get the relative path of the file from the working directory
+                relative_path = os.path.relpath(file_path, working_dir)
+                # Create the target file path by joining the target directory with the relative path
+                target_file_path = os.path.join(target_dir, relative_path)
 
                 try:
                     # If the conversion function is not `no_norm`, we perform conversion
@@ -262,6 +273,6 @@ def batch_norm(droid_profile, target_dir):
                 else:
                     status_dict['unconverted'].update({mime_type:1})
 
-        print(f"USER REPORT ON SCRIPT RESULTS: {len(status_dict['success'])} files normalized out of {status_dict['f_count']} total files in the directory, and {len(status_dict['fail'])} failed normalizations. For the failed normalizations, please review the error messages printed to screen from the software used for normalizing those files. For files that were not failed normalizations, but remain unnormalized, make sure there is a normalization pathway for that file type currently defined in this script.\n\nPlease see the list of unique file types represented among the unnormalized files below, determine your preferred normalized output for those file type, identify & install software to complete the normalization tasks on those file types, and add those normalization paths to this script. Save and rerun to see if the script was able to successfully normalize additional files.\n\nIf you aren't sure which free, open source software will open and normalize the remaining extensions, try asking ChatGPT, or review the normalization paths defined in the Archivematica documentation.")
+    print(f"USER REPORT ON SCRIPT RESULTS: {len(status_dict['success'])} files normalized out of {status_dict['f_count']} total files in the directory, and {len(status_dict['fail'])} failed normalizations. For the failed normalizations, please review the error messages printed to screen from the software used for normalizing those files. For files that were not failed normalizations, but remain unnormalized, make sure there is a normalization pathway for that file type currently defined in this script.\n\nPlease see the list of unique file types represented among the unnormalized files below, determine your preferred normalized output for those file type, identify & install software to complete the normalization tasks on those file types, and add those normalization paths to this script. Save and rerun to see if the script was able to successfully normalize additional files.\n\nIf you aren't sure which free, open source software will open and normalize the remaining extensions, try asking ChatGPT, or review the normalization paths defined in the Archivematica documentation.")
 
-        pprint.pprint(status_dict['unconverted'])
+    pprint.pprint(status_dict['unconverted'])

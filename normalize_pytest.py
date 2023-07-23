@@ -57,6 +57,7 @@ def setup_and_teardown(request):
 class TestFileNormalize:
     def test_droid_profile(self):
         droid_profile =  self.profile
+        # expected elements found in the profile
         expected_results = [
             {'FILE_PATH': self.temp_file, 'MIME_TYPE': 'text/plain', 'PUID': 'x-fmt/111'},
             {'FILE_PATH':self.eps_file, 'MIME_TYPE': 'application/postscript',  'PUID': 'fmt/124'},
@@ -203,7 +204,7 @@ class TestFileNormalize:
     def test_batch_norm(self, tmp_path):
         target_dir = tmp_path / "target"
         target_dir.mkdir()
-        batch_norm(self.profile, str(target_dir))
+        batch_norm(self.profile, str(target_dir),working_dir=self.temp_dir)
 
         expected_files = [
             os.path.join(target_dir, replace_suffix(self.temp_file, '.txt')),
