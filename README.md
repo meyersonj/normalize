@@ -144,9 +144,29 @@ Please note that this function is designed to be run in a Docker container, wher
 
 Contributions are welcome! Please submit a pull request or create an issue if you have any improvements or bug fixes.
 
-## License
+## Usage and License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+Based on your requirements, it seems like the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) license would be a good fit. This license allows others to remix, adapt, and build upon your work non-commercially, as long as they credit you and license their new creations under the identical terms.
+
+Here's how you might update the license section of your README:
+
+## Usage and License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt (remix, transform, and build upon the material) under the following terms:
+
+- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+- **NonCommercial** — You may not use the material for commercial purposes.
+- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+Please credit the following contributors in any derivative works:
+
+- Jessica Meyerson, [Educopia Institute](https://educopia.org/)
+- [Dmitry Meyerson](http://meyerson.github.io//)
+- Craig Steelman
+
+For more details, please see the [LICENSE](https://creativecommons.org/licenses/by-nc-sa/4.0/) file or the [full text of the license](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+
+Please note that this license does not cover any third-party dependencies used in this project. These dependencies may be covered by other licenses. Please refer to the respective dependency documentation for more information.
 
 ## Note on Local Installation
 
