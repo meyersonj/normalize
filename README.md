@@ -1,11 +1,10 @@
-# Convert
+# README
 
-This is a small script created on the basis of an older `convert_all.py` and with help from ChatGPT.
+## Project Overview
 
-* We have 2 .py files - 
-    - convert_all_chatgpt.py 
-    - convert_test.py
-*  convert_pytest.py _tests_ convert_all_chatgpt.py
+This project is a Python-based file normalization tool that uses DROID, FFmpeg, LibreOffice, and Inkscape to convert files to different formats based on their MIME type. The tool is designed to be run in a Docker container, which ensures that all dependencies are correctly installed and configured.
+
+The Python script takes two arguments: a working directory and a target directory. It scans the working directory for files, identifies their MIME type using DROID, and then converts them to a different format if necessary. The converted files are then moved to the target directory.
 
 ## Current status
 
@@ -16,54 +15,71 @@ This is a small script created on the basis of an older `convert_all.py` and wit
 - [x] test_convert_file 
 - [ ] test w/ some real reference data
 
-## (non-python) Requirements
 
-A long story best understood by reading the included Dockerfile
+## Prerequisites
 
-```bash
-make build
-```
-but if you don't want to use docker read on. . .
+- Docker
+- Make
 
-### Install
-you will need
-* java runtime
-* libreoffice
-* ffmpeg
-* inkscape
-* and probably some other stuff
+## How to Use
 
-Ideally eventually we version freeze all these os-level reqs. into a docker image, the current setup is slow and generally non-repeatable as we move across OSs/users.
+1. Clone this repository to your local machine.
 
-on a Mac you can try a _make_ target to install some of these - no promises
-```bash
-make macos-reqs
-```
+2. Use the provided Makefile to simplify the build and run process. The Makefile includes targets for building the Docker image, running a shell in the Docker container, running tests in the Docker container, and running the normalization process.
 
-### Adjust
+   - To build the Docker image:
 
-**Please adjust the path to .jar and libreoffice binary in convert_all_chatgpt.py**
+     ```
+     make build
+     ```
 
-### Verify java runtime
-you will need java runtime - verify with `java --version`
+   - To run a shell in the Docker container:
 
-## Quick start(non-dockeer)
+     ```
+     make docker-shell
+     ```
 
-Once the above (non-python) reqs are satisfied - try this
+   - To run tests in the Docker container:
 
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-run the tests
+     ```
+     make docker-test
+     ```
 
-```bash
-python3 -m unittest convert_test.TestFileConversion
-```
+   - To run the normalization process, replacing `<working_dir>` and `<target_dir>` with the paths to your working and target directories:
 
-## with docker
-%docker run -it -v $(PWD):/app convert:local  /bin/bash
+     ```
+     make run-normalization WORKING_DIR=<working_dir> TARGET_DIR=<target_dir>
+     ```
 
+   This command mounts your working and target directories to the `/app/input` and `/app/output` directories in the Docker container, and then runs the Python script with these directories as arguments.
 
-docker run -it  convert:local /bin/bash
+## Dependencies
+
+- DROID: Used to identify the MIME type of files.
+- FFmpeg: Used to convert audio and video files to MP3 and MP4 format, respectively.
+- LibreOffice: Used to convert document files to DOC and PDF format.
+- Inkscape: Used to convert vector image files to SVG format.
+
+## Dockerfile
+
+The Dockerfile included in this repository sets up a Docker container with Python 3.12 and all the necessary dependencies for the script. It also downloads the DROID binary and signature file, which are used to identify the MIME type of files.
+
+## Makefile
+
+The Makefile included in this repository provides a convenient way to perform common tasks such as building the Docker image, running a shell in the Docker container, running tests, and running the normalization process.
+
+## Limitations
+
+This tool currently supports the conversion of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to convert a different type of file, you may need to modify the script and Dockerfile to include the necessary conversion tools.
+
+## Contributing
+
+Contributions are welcome! Please submit a pull request or create an issue if you have any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+## Note on Local Installation
+
+While it is technically possible to run this script directly on your local machine, we strongly recommend using Docker. Docker ensures that all dependencies are correctly installed and configured, and it isolates the project from your local environment, reducing the risk of conflicts or other issues. If you choose to run the script locally, you will need to manually install and configure all dependencies, and we cannot guarantee that the script will work as expected.
