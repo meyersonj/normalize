@@ -80,20 +80,19 @@ While the current implementation is functional, there are several areas where it
 
 The current normalization pathways are defined in the `batch_norm` function within the `normalize_all.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
 ```python
-    mime_conversion_map = {
-        'audio/mpeg': convert_to_mp3,
-        'audio/x-wav': convert_to_mp3,
-        'video/x-msvideo': convert_to_mp4,
-        'application/postscript': convert_to_svg,
-        'application/vnd.oasis.opendocument.text': convert_to_doc,
-        'application/xml': convert_to_doc,
-        'text/xml': convert_to_doc,
-        'text/plain': no_convert,
-        'image/svg+xml': no_convert,
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': no_convert,
-        'video/mp4': no_convert,
-        'application/xml, text/xml': convert_to_doc,
-        'application/vnd.oasis.opendocument.text': convert_to_doc,
+    mime_normalization_map = {
+        'audio/mpeg': norm_to_mp3,
+        'audio/x-wav': norm_to_mp3,
+        'video/x-msvideo': norm_to_mp4,
+        'application/postscript': norm_to_svg,
+        'application/vnd.oasis.opendocument.text': norm_to_doc,
+        'application/xml': norm_to_doc,
+        'text/xml': norm_to_doc,
+        'text/plain': no_norm,
+        'image/svg+xml': no_norm,
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': no_norm,
+        'video/mp4': no_norm,
+        'application/xml, text/xml': norm_to_doc
     }
 ```
 

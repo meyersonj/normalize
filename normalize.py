@@ -216,7 +216,7 @@ def norm_file(filepath,metadata):
         print(f'Unsupported file type: {mime_type}', file=sys.stderr)
 
 def batch_norm(droid_profile, target_dir):
-    mime_conversion_map = {
+    mime_normalization_map = {
         'audio/mpeg': norm_to_mp3,
         'audio/x-wav': norm_to_mp3,
         'video/x-msvideo': norm_to_mp4,
@@ -240,7 +240,7 @@ def batch_norm(droid_profile, target_dir):
             file_path = item['FILE_PATH']
             status_dict['f_count'] += 1
 
-            conversion_function = mime_conversion_map.get(mime_type)
+            conversion_function = mime_normalization_map .get(mime_type)
             if conversion_function:
                 target_file_path = os.path.join(target_dir, os.path.basename(file_path))
                 print(target_file_path)
