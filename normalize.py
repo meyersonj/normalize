@@ -228,12 +228,12 @@ def batch_norm(droid_profile, target_dir, working_dir='/app/input/'):
         'text/xml': norm_to_doc,
         'text/plain': no_norm,
         'image/svg+xml': no_norm,
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': no_norm,
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': norm_to_doc,
         'video/mp4': no_norm,
         'application/xml, text/xml': norm_to_doc
     }
     status_dict = {'success':[], 'fail':[], 'unconverted': {}, 'f_count':0}
-
+    
     # Create all directories in the target directory, including empty ones
     for dirpath, dirnames, filenames in os.walk(working_dir):
         relative_dirpath = os.path.relpath(dirpath, working_dir)
@@ -259,7 +259,8 @@ def batch_norm(droid_profile, target_dir, working_dir='/app/input/'):
                 try:
                     # If the conversion function is not `no_norm`, we perform conversion
                     if conversion_function is not no_norm:
-                        conversion_function(file_path, output_dir=target_dir)
+                        target_dir_path = os.path.dirname(target_file_path)
+                        conversion_function(file_path, output_dir=target_dir_path)
                         status_dict['success'].append(file_path)
                     else:  # If it's `no_norm`, we simply copy the file
                         copyfile(file_path, target_file_path)
