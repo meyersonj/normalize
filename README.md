@@ -5,7 +5,7 @@ This is a small script created on the basis of an older `convert_all.py` and wit
 * We have 2 .py files - 
     - convert_all_chatgpt.py 
     - convert_test.py
-*  convert_test.py _tests_ convert_all_chatgpt.py
+*  convert_pytest.py _tests_ convert_all_chatgpt.py
 
 ## Current status
 
@@ -36,7 +36,7 @@ you will need
 Ideally eventually we version freeze all these os-level reqs. into a docker image, the current setup is slow and generally non-repeatable as we move across OSs/users.
 
 on a Mac you can try a _make_ target to install some of these - no promises
-```
+```bash
 make macos-reqs
 ```
 
@@ -47,7 +47,7 @@ make macos-reqs
 ### Verify java runtime
 you will need java runtime - verify with `java --version`
 
-## Quick start
+## Quick start(non-dockeer)
 
 Once the above (non-python) reqs are satisfied - try this
 
