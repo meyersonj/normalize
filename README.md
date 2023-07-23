@@ -61,13 +61,21 @@ If you encounter issues while running the normalization process, you can use the
 
 - `make docker-test`: This command runs the tests in the Docker container. If the tests fail, the output should provide clues about what went wrong.
 
+### Customizing Normalization Pathways
+
+The current normalization pathways are defined in the `batch_convert` function within the `normalize_all_.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
+
+This design is intended to provide a starting point for file normalization, but it's important to note that these pathways may not suit every use case. Depending on your specific requirements, you might need to convert files to different formats. For example, while the current pathways convert `.odt` files to `.doc` format, you might prefer to convert these files to `.pdf` format instead.
+
+As an open-source tool, you're encouraged to modify these normalization pathways to better suit your needs. You can do this by editing the dictionary in the `batch_convert` function. Each key-value pair in the dictionary represents a normalization pathway, with the key being the MIME type of the input files, and the value being the function that converts files of this type to the desired format.
+
+Remember, the goal of this tool is to provide a flexible and customizable solution for file normalization. Don't hesitate to adjust the code to fit your specific use case.
+
 ## Limitations and Next Steps
 
 This tool currently creates normalized derivaties of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to create normalized derivatives of a different/additional file types, you will need to modify the script and Dockerfile to include the necessary normalization pathways, this may require installing additional software. 
 
-### normalization pathways
-Currently the normalization pathways are defined in `normalize_all_.py::batch_convert` function as a static dictionary mapping MIME type to a normalization function.
-### More
+
 While the current implementation is functional, there are several areas where it could be improved:
 
 - **Scaling**: The current implementation processes files in a single-threaded manner. If you need to process a large number of files or very large files, this could become a bottleneck. Consider parallelizing the file processing to take advantage of multiple cores or distributed systems.
