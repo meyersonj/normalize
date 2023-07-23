@@ -21,7 +21,7 @@ docker-shell:
 
 .PHONE: docker-test
 docker-test:
-	docker run -it -v $(PWD):/app convert:local pytest -s convert_pytest.py::TestFileNormalize
+	docker run -it -v $(PWD):/app convert:local pytest -s normalize_pytest.py::TestFileNormalize
 
 .PHONY: run-normalizationd-debug
 run-normalization-debug:
