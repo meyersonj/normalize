@@ -77,15 +77,28 @@ While the current implementation is functional, there are several areas where it
 
 ### Customizing Normalization Pathways
 
-The current normalization pathways are defined in the `batch_norm` function within the `normalize_all_.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
+The current normalization pathways are defined in the `batch_norm` function within the `normalize_all.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
+```python
+    mime_conversion_map = {
+        'audio/mpeg': convert_to_mp3,
+        'audio/x-wav': convert_to_mp3,
+        'video/x-msvideo': convert_to_mp4,
+        'application/postscript': convert_to_svg,
+        'application/vnd.oasis.opendocument.text': convert_to_doc,
+        'application/xml': convert_to_doc,
+        'text/xml': convert_to_doc,
+        'text/plain': no_convert,
+        'image/svg+xml': no_convert,
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': no_convert,
+        'video/mp4': no_convert,
+        'application/xml, text/xml': convert_to_doc,
+        'application/vnd.oasis.opendocument.text': convert_to_doc,
+    }
+```
 
 This design is intended to provide a **starting point** for file normalization, but it's important to note that these pathways may not suit every use case.  Depending on your specific requirements, you might need to define additional or altering existing normalization pathways to fit your needs. For example, while the current pathways normalizes `.odt` files to `.doc` format, you might prefer to have your normalization pathway to generate `.pdf` derivatives instead.
 
 As an open-source tool, you're encouraged to modify these normalization pathways to better suit your needs. You can do this by editing the dictionary in the `batch_norm` function. Each key-value pair in the dictionary represents a normalization pathway, with the key being the MIME type of the input files, and the value being the function that converts files of this type to the desired format.
-
-- **Custom Pathways**: Allow users to define their own normalization pathways. This could be done by accepting a document that defines custom pathways, or by providing a user interface where users can create and manage their pathways.
-- **Targeted Normalization**: Add the ability to target specific MIME types for normalization. This would allow users to focus on the file types that are most relevant to their needs, potentially improving performance.
-- **Dynamic Pathways**: Instead of defining all pathways upfront, consider a dynamic approach where pathways are created on-the-fly based on the files being processed. This could make the tool more adaptable to different types of files and data sets.
 
 These improvements would require significant changes to the script, but they could make the tool more flexible and useful for a wider range of use cases. As always, contributions are welcome!
 
