@@ -122,6 +122,24 @@ As an open-source tool, you're encouraged to modify these normalization pathways
 
 These improvements would require significant changes to the script, but they could make the tool more flexible and useful for a wider range of use cases. As always, contributions are welcome!
 
+### On Building DROID Profiles
+
+The `build_droid_profile` function is used to identify the MIME type and other metadata for all files in a specified directory. This function uses DROID, a software tool developed by The National Archives to perform format identification.
+
+The function works by creating a DROID profile for the directory, which is a process that involves scanning all files in the directory and identifying their MIME type and other metadata. This metadata is then extracted into a CSV file.
+
+The CSV file is read into a list of dictionaries, where each dictionary contains the metadata for a file in the directory. This list is returned by the function and can be used to determine how each file should be converted.
+
+Here's an example of how to use the function:
+
+```python
+profile = build_droid_profile('/path/to/your/directory')
+```
+
+This will return a list of dictionaries, where each dictionary contains the metadata for a file in the directory. You can then iterate over this list to process each file based on its metadata.
+
+Please note that this function is designed to be run in a Docker container, where DROID and all other dependencies are correctly installed and configured. If you choose to run the function outside of a Docker container, you will need to manually install and configure DROID.
+
 ## Contributing
 
 Contributions are welcome! Please submit a pull request or create an issue if you have any improvements or bug fixes.
