@@ -128,7 +128,7 @@ The `build_droid_profile` function is used to identify the MIME type and other m
 
 The function works by creating a DROID profile for the directory, which is a process that involves scanning all files in the directory and identifying their MIME type and other metadata. This metadata is then extracted into a CSV file.
 
-The CSV file is read into a list of dictionaries, where each dictionary contains the metadata for a file in the directory. This list is returned by the function and can be used to determine how each file should be converted.
+The CSV file is read into a list of dictionaries, where each dictionary contains the metadata for a file in the directory. This list is returned by the function and can be used to determine how each file should be normalized.
 
 Here's an example of how to use the function:
 
