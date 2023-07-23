@@ -146,12 +146,6 @@ Contributions are welcome! Please submit a pull request or create an issue if yo
 
 ## Usage and License
 
-Based on your requirements, it seems like the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) license would be a good fit. This license allows others to remix, adapt, and build upon your work non-commercially, as long as they credit you and license their new creations under the identical terms.
-
-Here's how you might update the license section of your README:
-
-## Usage and License
-
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt (remix, transform, and build upon the material) under the following terms:
 
 - **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
