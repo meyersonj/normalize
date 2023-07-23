@@ -1,16 +1,16 @@
-from convert_all_chatgpt import build_droid_profile, batch_convert
+from normalize import build_droid_profile, batch_norm
 import argparse
 
 def main(working_dir, target_dir):
     """
-    Main function to build the DROID profile for a directory and perform batch conversion.
+    Main function to build the DROID profile for a directory and perform batch normalization.
     """
 
     # Build the DROID profile for the working directory
     droid_profile = build_droid_profile(working_dir)
     
-    # Perform batch conversion on the files identified in the DROID profile
-    batch_convert(droid_profile, target_dir)
+    # Perform batch normalization on the files identified in the DROID profile
+    batch_norm(droid_profile, target_dir)
 
 
 if __name__ == '__main__':

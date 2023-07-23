@@ -5,7 +5,12 @@ import subprocess
 
 import pytest
 
-from convert_all_chatgpt import convert_to_mp4, convert_to_mp3, convert_to_svg, convert_file, convert_to_doc, build_droid_profile, identify_file, batch_convert,construct_output_path, no_convert, replace_suffix, convert_to_pdf
+from normalize import norm_to_mp4, norm_to_mp3,\
+                      norm_to_svg, norm_file,\
+                      norm_to_doc, build_droid_profile,\
+                      identify_file, batch_norm,\
+                      construct_output_path, no_norm,\
+                      replace_suffix, norm_to_pdf
 
 @pytest.fixture(scope='class')
 def setup_and_teardown(request):
@@ -49,7 +54,7 @@ def setup_and_teardown(request):
     shutil.rmtree(temp_dir)
 
 @pytest.mark.usefixtures("setup_and_teardown")
-class TestFileConversion:
+class TestFileNormalize:
     def test_droid_profile(self):
         droid_profile =  self.profile
         expected_results = [
@@ -72,8 +77,8 @@ class TestFileConversion:
                 assert key in matching_dict, f"Key '{key}' not found in dictionary with FILE_PATH {matching_dict['FILE_PATH']}"
                 assert matching_dict[key] == value, f"Value for key '{key}' does not match expected value for FILE_PATH {matching_dict['FILE_PATH']}"
         
-    def test_no_convert_with_output_dir(self):
-        output_file_path = no_convert(self.temp_file, output_dir = self.output_dir)
+    def test_no_norm_with_output_dir(self):
+        output_file_path = no_norm(self.temp_file, output_dir = self.output_dir)
         assert os.path.isfile(output_file_path)
         with open(output_file_path, 'r') as f:
             assert f.read() == 'test data'
@@ -118,32 +123,32 @@ class TestFileConversion:
         expected_output_path = '/path/to/output./files/file.mp4'
         assert construct_output_path(filepath, suffix, output_dir) == expected_output_path
 
-    def test_convert_to_mp4(self):
-        mp4_path = convert_to_mp4(self.video_file)
+    def test_norm_to_mp4(self):
+        mp4_path = norm_to_mp4(self.video_file)
         assert os.path.exists(self.video_file)
         assert os.path.splitext(mp4_path)[1] == '.mp4'
         metadata = identify_file(mp4_path)
         assert metadata['PUID'] == 'fmt/199'
         os.remove(mp4_path)
 
-    def test_convert_to_mp3(self):
-        mp3_path = convert_to_mp3(self.wav_file)
+    def test_norm_to_mp3(self):
+        mp3_path = norm_to_mp3(self.wav_file)
         assert os.path.exists(mp3_path)
         assert os.path.splitext(mp3_path)[1] == '.mp3'
         metadata = identify_file(mp3_path)
         assert metadata['PUID'] == 'fmt/134'  # 'fmt/134' is the PUID for MP3 
         os.remove(mp3_path)
 
-    def test_convert_to_doc(self):
-        doc_path = convert_to_doc(self.odt_file)
+    def test_norm_to_doc(self):
+        doc_path = norm_to_doc(self.odt_file)
         assert os.path.exists(doc_path)
         assert os.path.splitext(doc_path)[1] == '.doc'
         os.remove(doc_path)
 
-    def test_convert_to_pdf(self):
+    def test_norm_to_pdf(self):
         # Input an existing file path in place of "input_file.odt"
         input_file = "input_file.odt" 
-        pdf_path = convert_to_pdf(self.odt_file)
+        pdf_path = norm_to_pdf(self.odt_file)
         
         # Check if the output file exists
         assert os.path.exists(pdf_path), "PDF file was not created."
@@ -154,37 +159,37 @@ class TestFileConversion:
         # Remove the output file
         os.remove(pdf_path)
 
-    def test_convert_to_svg(self):
-        svg_path = convert_to_svg(self.eps_file)
+    def test_norm_to_svg(self):
+        svg_path = norm_to_svg(self.eps_file)
         assert os.path.exists(svg_path)
         assert os.path.splitext(svg_path)[1] == '.svg'
         os.remove(svg_path)
 
-    def test_convert_file(self):
+    def test_norm_file(self):
 
         audio_file = self.wav_file
         audio_metadata = [x for x in self.profile if x['FILE_PATH']==audio_file][0]
-        mp3_path = convert_file(audio_file,audio_metadata)
+        mp3_path = norm_file(audio_file,audio_metadata)
         assert os.path.exists(mp3_path)
         assert os.path.splitext(mp3_path)[1] == '.mp3'
         os.remove(mp3_path)
 
         video_file = self.video_file 
         video_metadata = [x for x in self.profile if x['FILE_PATH']==video_file][0]
-        mp4_path = convert_file(video_file, video_metadata)
+        mp4_path = norm_file(video_file, video_metadata)
         assert os.path.exists(mp4_path)
         assert os.path.splitext(mp4_path)[1] == '.mp4'
         os.remove(mp4_path)
 
         eps_metadata = [x for x in self.profile if x['FILE_PATH']==self.eps_file][0]
-        svg_path = convert_file(self.eps_file, eps_metadata)
+        svg_path = norm_file(self.eps_file, eps_metadata)
         assert os.path.exists(svg_path)
         assert os.path.splitext(svg_path)[1] == '.svg'
         os.remove(svg_path)
         #assert eps_file == svg_path
 
         doc_metadata = [x for x in self.profile if x['FILE_PATH']==self.odt_file][0]
-        doc_path = convert_file(self.odt_file, doc_metadata)
+        doc_path = norm_file(self.odt_file, doc_metadata)
         assert os.path.exists(doc_path)
         assert os.path.splitext(doc_path)[1] == '.doc'
         os.remove(doc_path)
@@ -192,13 +197,13 @@ class TestFileConversion:
         # plain text
         unknown_file = self.temp_file
         metadata = [x for x in self.profile if x['FILE_PATH']==self.temp_file][0]
-        plain_text = convert_file(unknown_file, metadata)
+        plain_text = norm_file(unknown_file, metadata)
         assert os.path.exists(plain_text)
     
-    def test_batch_convert(self, tmp_path):
+    def test_batch_norm(self, tmp_path):
         target_dir = tmp_path / "target"
         target_dir.mkdir()
-        batch_convert(self.profile, str(target_dir))
+        batch_norm(self.profile, str(target_dir))
 
         expected_files = [
             os.path.join(target_dir, replace_suffix(self.temp_file, '.txt')),
