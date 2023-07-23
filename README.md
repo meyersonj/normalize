@@ -96,6 +96,26 @@ The current normalization pathways are defined in the `batch_norm` function with
     }
 ```
 
+For reference here a table with _likely_ file extensions associated with the MIME types we currently look for.  Please note that this is a simplified representation and the actual mapping in the code is based on MIME types, **not** file extensions. For instance, the `.xml` extension is mapped to both `convert_to_doc` and `no_convert` functions because XML files can have different structures and uses, and the appropriate function would depend on the specific use case.
+
+| MIME Type | Likely File Extensions |
+| --- | --- |
+| `audio/mpeg` | .mp3 |
+| `audio/x-wav` | .wav |
+| `video/x-msvideo` | .avi |
+| `application/postscript` | .ps |
+| `application/vnd.oasis.opendocument.text` | .odt |
+| `application/xml` | .xml |
+| `text/xml` | .xml |
+| `text/plain` | .txt |
+| `image/svg+xml` | .svg |
+| `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | .docx |
+| `video/mp4` | .mp4 |
+| `application/xml, text/xml` | .xml |
+
+
+
+
 This design is intended to provide a **starting point** for file normalization, but it's important to note that these pathways may not suit every use case.  Depending on your specific requirements, you might need to define additional or altering existing normalization pathways to fit your needs. For example, while the current pathways normalizes `.odt` files to `.doc` format, you might prefer to have your normalization pathway to generate `.pdf` derivatives instead.
 
 As an open-source tool, you're encouraged to modify these normalization pathways to better suit your needs. You can do this by editing the dictionary in the `batch_norm` function. Each key-value pair in the dictionary represents a normalization pathway, with the key being the MIME type of the input files, and the value being the function that converts files of this type to the desired format.
