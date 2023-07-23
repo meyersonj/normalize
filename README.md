@@ -164,7 +164,7 @@ Please credit the following contributors in any derivative works:
 - [Dmitry Meyerson](http://meyerson.github.io//)
 - Craig Steelman
 
-For more details, please see the [LICENSE](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode) file or the [full text of the license](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+For more details, please see the [LICENSE](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 
 Please note that this license does not cover any third-party dependencies used in this project. These dependencies may be covered by other licenses. Please refer to the respective dependency documentation for more information.
 
