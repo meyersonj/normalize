@@ -44,7 +44,7 @@ In a production environment, you would likely use a different setup. For example
 
 ## Dependencies
 
-The Docker container is configured to handle all dependencies required for the file conversion process. Here is a brief overview of the dependencies and their roles:
+The Docker container is configured to handle all dependencies required for the file normalization process. Here is a brief overview of the dependencies and their roles:
 
 - DROID: Used to identify the MIME type of files.
 - FFmpeg: Used to normalize audio and video files to MP3 and MP4 format, respectively.
