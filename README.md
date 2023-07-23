@@ -96,7 +96,7 @@ The current normalization pathways are defined in the `batch_norm` function with
     }
 ```
 
-For reference here a table with _likely_ file extensions associated with the MIME types we currently look for.  Please note that this is a simplified representation and the actual mapping in the code is based on MIME types, **not** file extensions. For instance, the `.xml` extension is mapped to both `convert_to_doc` and `no_convert` functions because XML files can have different structures and uses, and the appropriate function would depend on the specific use case.
+For reference here a table with _likely_ file extensions associated with the MIME types we currently look for.  Please note that this is a simplified representation and the actual mapping in the code is based on MIME types, **not** file extensions. For instance, the `.xml` extension is mapped to both `norm_to_doc` and `no_norm` functions because XML files can have different structures and uses, and the appropriate function would depend on the specific use case.
 
 | Droid detected MIME Type | Likely File Extensions |
 | --- | --- |
