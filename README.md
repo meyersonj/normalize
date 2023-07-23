@@ -61,18 +61,6 @@ If you encounter issues while running the normalization process, you can use the
 
 - `make docker-test`: This command runs the tests in the Docker container. If the tests fail, the output should provide clues about what went wrong.
 
-### Customizing Normalization Pathways
-
-The current normalization pathways are defined in the `batch_norm` function within the `normalize_all_.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
-
-This design is intended to provide a **starting point** for file normalization, but it's important to note that these pathways may not suit every use case.  Depending on your specific requirements, you might need to define additional or altering existing normalization pathways to fit your needs. For example, while the current pathways normalizes `.odt` files to `.doc` format, you might prefer to have your normalization pathway to generate `.pdf` derivatives instead.
-
-As an open-source tool, you're encouraged to modify these normalization pathways to better suit your needs. You can do this by editing the dictionary in the `batch_norm` function. Each key-value pair in the dictionary represents a normalization pathway, with the key being the MIME type of the input files, and the value being the function that converts files of this type to the desired format.
-
-Remember, the goal of this tool is to provide a flexible and customizable solution for file normalization. Don't hesitate to adjust the code to fit your specific use case.
-
-Sure, here is the updated "Limitations and Next Steps" section with the new "Logging" bullet point:
-
 ## Limitations and Next Steps
 
 This tool currently creates normalized derivatives of audio, video, document, and vector image files. Other file types will be copied to the target directory without being converted. If you need to create normalized derivatives of a different/additional file types, you will need to modify the script and Dockerfile to include the necessary normalization pathways. This may require installing additional software.
@@ -89,7 +77,11 @@ While the current implementation is functional, there are several areas where it
 
 ### Customizing Normalization Pathways
 
-The current implementation of the tool uses a static dictionary to define normalization pathways. While this approach provides a good starting point, it may not be flexible enough for all use cases. Here are a few potential improvements:
+The current normalization pathways are defined in the `batch_norm` function within the `normalize_all_.py` script. These pathways are represented as a static dictionary that maps MIME types to corresponding normalization functions.
+
+This design is intended to provide a **starting point** for file normalization, but it's important to note that these pathways may not suit every use case.  Depending on your specific requirements, you might need to define additional or altering existing normalization pathways to fit your needs. For example, while the current pathways normalizes `.odt` files to `.doc` format, you might prefer to have your normalization pathway to generate `.pdf` derivatives instead.
+
+As an open-source tool, you're encouraged to modify these normalization pathways to better suit your needs. You can do this by editing the dictionary in the `batch_norm` function. Each key-value pair in the dictionary represents a normalization pathway, with the key being the MIME type of the input files, and the value being the function that converts files of this type to the desired format.
 
 - **Custom Pathways**: Allow users to define their own normalization pathways. This could be done by accepting a document that defines custom pathways, or by providing a user interface where users can create and manage their pathways.
 - **Targeted Normalization**: Add the ability to target specific MIME types for normalization. This would allow users to focus on the file types that are most relevant to their needs, potentially improving performance.
