@@ -232,7 +232,7 @@ def batch_norm(droid_profile, target_dir, working_dir='/app/input/'):
         'video/mp4': no_norm,
         'application/xml, text/xml': norm_to_doc
     }
-    status_dict = {'success':[], 'fail':[], 'unconverted': {}, 'f_count':0}
+    status_dict = {'success':[], 'success_copy':[], 'fail':[], 'unnormalized': {}, 'f_count':0,'undefined':{}} 
     
     # Create all directories in the target directory, including empty ones
     for dirpath, dirnames, filenames in os.walk(working_dir):
@@ -249,31 +249,36 @@ def batch_norm(droid_profile, target_dir, working_dir='/app/input/'):
             file_path = item['FILE_PATH']
             status_dict['f_count'] += 1
 
-            conversion_function = mime_normalization_map.get(mime_type, no_norm)
-            if conversion_function:
-                # Get the relative path of the file from the working directory
-                relative_path = os.path.relpath(file_path, working_dir)
-                # Create the target file path by joining the target directory with the relative path
-                target_file_path = os.path.join(target_dir, relative_path)
+            # Get the relative path of the file from the working directory
+            relative_path = os.path.relpath(file_path, working_dir)
+            # Create the target file path by joining the target directory with the relative path
+            target_file_path = os.path.join(target_dir, relative_path)
 
-                try:
+            conversion_function = mime_normalization_map.get(mime_type)
+
+            try:
+                if conversion_function:
                     # If the conversion function is not `no_norm`, we perform conversion
                     if conversion_function is not no_norm:
                         target_dir_path = os.path.dirname(target_file_path)
                         conversion_function(file_path, output_dir=target_dir_path)
                         status_dict['success'].append(file_path)
-                    else:  # If it's `no_norm`, we simply copy the file
+                    else: # If it's `no_norm`, we simply copy the file
                         copyfile(file_path, target_file_path)
-                        status_dict['success'].append(file_path)
-                except Exception as e:
-                    print(f'Error converting {file_path}: {e}', file=sys.stderr)
-                    status_dict['fail'].append(file_path)
-            else:
-                if mime_type in status_dict['unconverted']:
-                    status_dict['unconverted'][mime_type] += 1
-                else:
-                    status_dict['unconverted'].update({mime_type:1})
+                        status_dict['success_copy'].append(file_path)
+                        if mime_type in status_dict['unnormalized']:
+                            status_dict['unnormalized'][mime_type] += 1
+                        else:
+                            status_dict['unnormalized'].update({mime_type:1})
+                else: # If no normalization function is define we still copy the file
+                    copyfile(file_path, target_file_path)
+                    status_dict['success_copy'].append(file_path)
+                    if mime_type in status_dict['undefined']:
+                        status_dict['undefined'][mime_type] += 1
+                    else:
+                        status_dict['undefined'].update({mime_type:1})
+            except Exception as e:
+                print(f'Error normalizing {file_path}: {e}', file=sys.stderr)
+                status_dict['fail'].append(file_path)
 
-    print(f"USER REPORT ON SCRIPT RESULTS: {len(status_dict['success'])} files normalized out of {status_dict['f_count']} total files in the directory, and {len(status_dict['fail'])} failed normalizations. For the failed normalizations, please review the error messages printed to screen from the software used for normalizing those files. For files that were not failed normalizations, but remain unnormalized, make sure there is a normalization pathway for that file type currently defined in this script.\n\nPlease see the list of unique file types represented among the unnormalized files below, determine your preferred normalized output for those file type, identify & install software to complete the normalization tasks on those file types, and add those normalization paths to this script. Save and rerun to see if the script was able to successfully normalize additional files.\n\nIf you aren't sure which free, open source software will open and normalize the remaining extensions, try asking ChatGPT, or review the normalization paths defined in the Archivematica documentation.")
-
-    pprint.pprint(status_dict['unconverted'])
+    print(f"USER REPORT ON SCRIPT RESULTS: {len(status_dict['success'])} files normalized out of {status_dict['f_count']} total files in the directory, and {len(status_dict['fail'])} failed normalizations. {sum(status_dict['unnormalized'].values())} files were copied w/out normalization as explictly dictated by the normalization map and {sum(status_dict['undefined'].values())} withtout a defined normalization were also copied over, for a total for of {len(status_dict['success_copy'])} files that were copied over without normalization.  For the failed normalizations, please review the error messages printed to screen from the software used for normalizing those files. For files that were not failed normalizations, but remain unnormalized, make sure there is a normalization pathway for that file type currently defined in this script.\n\nPlease see the list of unique file types represented among the unnormalized files below, determine your preferred normalized output for those file type, identify & install software to complete the normalization tasks on those file types, and add those normalization paths to this script. Save and rerun to see if the script was able to successfully normalize additional files.\n\nIf you aren't sure which free, open source software will open and normalize the remaining extensions, try asking ChatGPT, or review the normalization paths defined in the Archivematica documentation.")

@@ -1,16 +1,16 @@
 FROM python:3.12-rc-bullseye
 
 # Install Java runtime
-RUN apt-get update && apt-get install -y default-jre
+RUN apt-get update && apt-get install -y default-jre=2:1.11-72
 
 # Install LibreOffice
-RUN apt-get install -y libreoffice
+RUN apt-get install -y libreoffice=1:7.0.4-4+deb11u7
 
 # Install FFmpeg
-RUN apt-get install -y ffmpeg
+RUN apt-get install -y ffmpeg=7:4.3.6-0+deb11u1
 
 # Install Inkscape
-RUN apt-get install -y inkscape wget unzip xvfb
+RUN apt-get install -y inkscape=1.0.2-4 wget unzip xvfb
 
 # Set the working directory
 WORKDIR /app

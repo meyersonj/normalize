@@ -1,2 +1,2 @@
-pydub
-pytest
+pydub==0.25.1
+pytest==7.4.0
